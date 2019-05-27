@@ -1,0 +1,27 @@
+<html>
+    <head>
+        <title>Javascript Objects</title>
+    </head>
+    <body>
+            <canvas height="500" width="500" style="border:2px solid #000000" id="ctx"/>
+            <script>
+                var ctx = document.getElementById('ctx').getContext('2d');
+                var square = {
+                    width:300,
+                    height:200,
+                    x:100,
+                    y:200,
+                    color:'red'
+                };
+        
+                ctx.save();
+        
+                ctx.fillStyle = square.color;
+                ctx.fillRect(square.x,square.y,square.width,square.height);
+        
+                ctx.restore();
+              
+            </script>
+        </body>
+        
+</html>
