@@ -6,10 +6,11 @@
     <canvas height="500" width="500" id="ctx" style="border: 2px solid #000000"/>
     <script>
         var ctx = document.getElementById('ctx').getContext('2d');
+        
        var WIDTH = 500;
        var HEIGHT = 500;
        ctx.font = "20px calibri";
-       var snakeList, foodList, direction, eatenת , intervakVal, score, running=false;
+       var snakeList, foodList, direction, eaten , intervakVal, score, running=false;
        ctx.fillText('Click me to start the game', 140,250);
        var snakeBody = {
            width:20,

@@ -1,0 +1,15 @@
+body {
+  background-image: linear-gradient(
+    #00ff40,
+    #40ff00,
+    #80ff00,
+    #bfff00,
+    #ffff00
+  );
+}
+
+.canvas {
+  position: absolute;
+  top: 10%;
+  left: 26%;
+}
