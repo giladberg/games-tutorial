@@ -1,42 +1,41 @@
 var canvas = document.getElementById('ctx');
 var ctx = canvas.getContext('2d');
-var WIDTH = 500;
-var HEIGHT = 500;
+var WIDTH = 700;
+var HEIGHT = 700;
 ctx.font = '20px calibri';
 var snakeList,
   foodList,
   direction,
   eaten,
-  damaged,
   intervakVal,
   score,
   obstacleImg,
   stayGoldImg,
   headSnakeImg,
-  running = false;
+  count = 0;
+bonusfood = false;
+running = false;
 var gameOver = new Audio('GameOver.mp3');
 var Maorissio = new Audio('Maorissio.mp3');
 
-ctx.fillText('Click me to start the game', 140, 250);
+ctx.fillText('Click me to start the game', 240, 350);
 var snakeBody = {
-  width: 20,
-  height: 20,
-  color: 'green',
-  urlHead: 'snakehead.png'
+  width: 15,
+  height: 15,
+  color: 'red'
 };
 
 var food = {
   width: 50,
   height: 70,
-  color: 'orange',
-  url: 'onlygold.png'
+  url: 'img/onlygold.png',
+  natanFood: 'img/natan_burned.png'
 };
 
 var obstacle = {
   width: 20,
   height: 20,
-  color: 'red',
-  url: 'mine-removebg.png'
+  url: 'img/mine-removebg.png'
 };
 
 document.getElementById('ctx').onmousedown = function() {
@@ -66,10 +65,10 @@ document.onkeydown = function(event) {
 
 testCollision = function(rect1, rect2) {
   return (
-    rect1.x <= rect2.x + food.width &&
-    rect2.x <= rect1.x + snakeBody.width &&
-    rect1.y <= rect2.y + food.height &&
-    rect2.y <= rect1.y + snakeBody.height
+    rect1.x <= rect2.x + food.width - 5 &&
+    rect2.x <= rect1.x + snakeBody.width - 5 &&
+    rect1.y <= rect2.y + food.height - 5 &&
+    rect2.y <= rect1.y + snakeBody.height - 5
   );
 };
 
@@ -89,16 +88,13 @@ testCollisionSnake = function(snake1, snake2) {
 drawSnake = function(sb, i) {
   ctx.save();
   if (i == 0) {
-    // headSnakeImg = new Image();
-    // headSnakeImg.src = snakeBody.urlHead;
-    // ctx.drawImage(headSnakeImg, f.x, f.y, snakeBody.width, snakeBody.height);
-    // ctx.restore();
     ctx.fillStyle = 'black';
     ctx.fillRect(sb.x, sb.y, snakeBody.width, snakeBody.height);
     ctx.restore();
   } else {
     ctx.fillStyle = snakeBody.color;
     ctx.fillRect(sb.x, sb.y, snakeBody.width, snakeBody.height);
+
     ctx.restore();
   }
 };
@@ -106,7 +102,11 @@ drawSnake = function(sb, i) {
 drawFood = function(f, i) {
   ctx.save();
   stayGoldImg = new Image();
-  stayGoldImg.src = food.url;
+  if (bonusfood) {
+    stayGoldImg.src = food.natanFood;
+  } else {
+    stayGoldImg.src = food.url;
+  }
   ctx.drawImage(stayGoldImg, f.x, f.y, food.width, food.height);
   ctx.restore();
 };
@@ -154,32 +154,39 @@ updateSnakeList = function() {
 };
 
 checkSnakePosition = function() {
-  if (snakeList[0].x > 500) {
+  if (snakeList[0].x > 700) {
     snakeList[0].x = 0;
   }
 
   if (snakeList[0].x < 0) {
-    snakeList[0].x = 500;
+    snakeList[0].x = 700;
   }
 
-  if (snakeList[0].y > 500) {
+  if (snakeList[0].y > 700) {
     snakeList[0].y = 0;
   }
 
   if (snakeList[0].y < 0) {
-    snakeList[0].y = 500;
+    snakeList[0].y = 700;
   }
 };
 
 isGameOver = function() {
   for (i in snakeList) {
     if (i == 0) continue;
-    if (
-      testCollisionSnake(snakeList[0], snakeList[i]) ||
-      testCollisionObstacle(snakeList[0], obstacleList[0])
-    ) {
+    if (testCollisionSnake(snakeList[0], snakeList[i])) {
       clearInterval(intervalVal);
-      ctx.fillText('Game Over! Click to restart', 150, 250);
+      ctx.fillText('Game Over! Click to restart', 540, 350);
+      Maorissio.pause();
+      Maorissio.currentTime = 0;
+      gameOver.play();
+      return;
+    }
+  }
+  for (i in obstacleList) {
+    if (testCollisionObstacle(snakeList[0], obstacleList[i])) {
+      clearInterval(intervalVal);
+      ctx.fillText('Game Over! Click to restart', 240, 350);
       Maorissio.pause();
       Maorissio.currentTime = 0;
       gameOver.play();
@@ -190,24 +197,24 @@ isGameOver = function() {
 
 updateSnakePosition = function() {
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
-  while (eaten) {
-    var pos_x = Math.random() * 485 + 8;
-    var pos_y = Math.random() * 485 + 8;
-    foodList[0] = { x: pos_x, y: pos_y };
-    pos_x = Math.random() * 485 + 5;
-    pos_y = Math.random() * 485 + 5;
-    obstacleList[0] = { x: pos_x, y: pos_y };
-
-    eaten = false;
-  }
+  isEaten();
   obstacleList.forEach(drawObstacle);
   foodList.forEach(drawFood);
   snakeList.forEach(drawSnake);
+  if (score % 10 == 0 && score !== 0) {
+    bonusfood = true;
+  }
 
   if (testCollision(snakeList[0], foodList[0])) {
     foodList = [];
     eaten = true;
-    score += 1;
+    if (bonusfood) {
+      score += 5;
+      bonusfood = false;
+    } else {
+      score += 1;
+    }
+    count++;
 
     var new_X, new_Y;
     if (direction == 0) {
@@ -225,7 +232,7 @@ updateSnakePosition = function() {
     }
     snakeList.unshift({ x: new_X, y: new_Y });
   }
-  ctx.fillText('Score: ' + score, 420, 30);
+  ctx.fillText('Score: ' + score, 620, 30);
 
   isGameOver();
   checkSnakePosition();
@@ -244,3 +251,33 @@ startGame = function() {
 
   intervalVal = setInterval(updateSnakePosition, 10);
 };
+
+isEaten = function() {
+  while (eaten) {
+    var pos_x = Math.random() * 685 - 8;
+    var pos_y = Math.random() * 685 - 8;
+    foodList[0] = { x: pos_x, y: pos_y };
+    if (score == 0) {
+      pos_x = Math.random() * 685 + 5;
+      pos_y = Math.random() * 685 + 5;
+      obstacleList[0] = { x: pos_x, y: pos_y };
+    } else if (count % 15 == 0) {
+      pos_x = Math.random() * 685 + 5;
+      pos_y = Math.random() * 685 + 5;
+      obstacleList.unshift({ x: pos_x, y: pos_y });
+    }
+
+    eaten = false;
+  }
+};
+var xhttp = new XMLHttpRequest();
+xhttp.open('GET', 'localhost:5000/api/users', true);
+xhttp.setRequestHeader('Content-Type', 'application/json');
+xhttp.send();
+var x = JSON.parse(xhttp.responseText);
+console.log(x);
+
+// var xmlhttp = new XMLHttpRequest(); // new HttpRequest instance
+// xmlhttp.open('POST', 'http://localhost:5000/api/users', true);
+// xmlhttp.setRequestHeader('Content-Type', 'application/json');
+// xmlhttp.send(JSON.stringify({ name: 'John Rambo', point: 88 }));

@@ -1,0 +1,20 @@
+{
+  "name": "final",
+  "version": "1.0.0",
+  "description": "",
+  "main": "snake.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "nodemon server"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "config": "^3.1.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.5.12",
+    "nodemon": "^1.19.1",
+    "path": "^0.12.7"
+  }
+}
