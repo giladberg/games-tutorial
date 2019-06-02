@@ -23,12 +23,14 @@ router.post('/', async (req, res) => {
 // @access   public
 
 router.get('/', async (req, res) => {
-  const user = await User.find({}, function(err, pers) {
+  const user = await User.find(function(err, pers) {
     if (err) {
       return res.send(err);
     }
     return res.json(pers);
-  });
+  })
+    .sort({ point: -1 })
+    .limit(1);
 });
 
 module.exports = router;

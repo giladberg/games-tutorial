@@ -1,0 +1,34 @@
+<html>
+  <head>
+    <title>Snake Game</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link href="https://fonts.googleapis.com/css?family=Ranga&display=swap" rel="stylesheet">
+    </script>
+  </head>
+  <body>
+
+    <h1 class="main-title">Welcome To Snake 2019</h1>
+    <div class="container-photos" >
+      <img src="img/grafiti1.jpg" class="photo"/>
+      <img src="img/grafiti4.jpg" class="photo"/> 
+       <img src="img/grafiti3.jfif" class="photo"/> 
+    </div>
+   
+    <div class="container-new-scorer" id="top-scorer">
+      <p class="primary-text">Congratulations!! You are the new winner
+        your score is: <span id="new-score"></span>
+      </p>
+      <p class="secondery-text">Please Enter your name: <input id="winner-name" type="text"  /></p>
+
+      <div class="container-button">   
+          <button class="btn" onClick="cancel()" >Cancel</button>
+          <button class="btn" onClick="saveDataInDB()" >Save</button>
+      </div>
+      
+    </div>
+    <canvas class="canvas" height="500" width="700" id="ctx" style="border: 2px solid #000000"/>
+    
+  
+    <script type="text/javascript" src="snake.js" ></script>
+  </body>
+</html>

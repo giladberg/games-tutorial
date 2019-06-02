@@ -1,7 +1,8 @@
 var canvas = document.getElementById('ctx');
 var ctx = canvas.getContext('2d');
+var newScorer = document.getElementById('top-scorer');
 var WIDTH = 700;
-var HEIGHT = 700;
+var HEIGHT = 500;
 ctx.font = '20px calibri';
 var snakeList,
   foodList,
@@ -12,13 +13,14 @@ var snakeList,
   obstacleImg,
   stayGoldImg,
   headSnakeImg,
+  topScore,
   count = 0;
 bonusfood = false;
 running = false;
 var gameOver = new Audio('GameOver.mp3');
 var Maorissio = new Audio('Maorissio.mp3');
 
-ctx.fillText('Click me to start the game', 240, 350);
+ctx.fillText('Click me to start the game', 240, 250);
 var snakeBody = {
   width: 15,
   height: 15,
@@ -162,12 +164,12 @@ checkSnakePosition = function() {
     snakeList[0].x = 700;
   }
 
-  if (snakeList[0].y > 700) {
+  if (snakeList[0].y > 500) {
     snakeList[0].y = 0;
   }
 
   if (snakeList[0].y < 0) {
-    snakeList[0].y = 700;
+    snakeList[0].y = 500;
   }
 };
 
@@ -175,23 +177,27 @@ isGameOver = function() {
   for (i in snakeList) {
     if (i == 0) continue;
     if (testCollisionSnake(snakeList[0], snakeList[i])) {
-      clearInterval(intervalVal);
-      ctx.fillText('Game Over! Click to restart', 540, 350);
-      Maorissio.pause();
-      Maorissio.currentTime = 0;
-      gameOver.play();
+      whereGameOver();
       return;
     }
   }
   for (i in obstacleList) {
     if (testCollisionObstacle(snakeList[0], obstacleList[i])) {
-      clearInterval(intervalVal);
-      ctx.fillText('Game Over! Click to restart', 240, 350);
-      Maorissio.pause();
-      Maorissio.currentTime = 0;
-      gameOver.play();
+      whereGameOver();
       return;
     }
+  }
+};
+
+whereGameOver = function() {
+  clearInterval(intervalVal);
+  ctx.fillText('Game Over! Click to restart', 240, 250);
+  Maorissio.pause();
+  Maorissio.currentTime = 0;
+  gameOver.play();
+  if (score > topScore[0].point) {
+    document.getElementById('new-score').innerHTML = score;
+    newScorer.style.display = 'flex';
   }
 };
 
@@ -232,8 +238,8 @@ updateSnakePosition = function() {
     }
     snakeList.unshift({ x: new_X, y: new_Y });
   }
-  ctx.fillText('Score: ' + score, 620, 30);
-
+  ctx.fillText('Score: ' + score, 590, 30);
+  ctx.fillText(`Top Scorer(${topScore[0].name}): ${topScore[0].point}`, 50, 30);
   isGameOver();
   checkSnakePosition();
   updateSnakeList();
@@ -248,36 +254,49 @@ startGame = function() {
   score = 0;
   running = true;
   Maorissio.play();
-
-  intervalVal = setInterval(updateSnakePosition, 10);
+  maxValue();
+  intervalVal = setInterval(updateSnakePosition, 15);
 };
 
 isEaten = function() {
   while (eaten) {
     var pos_x = Math.random() * 685 - 8;
-    var pos_y = Math.random() * 685 - 8;
+    var pos_y = Math.random() * 485 - 8;
     foodList[0] = { x: pos_x, y: pos_y };
     if (score == 0) {
       pos_x = Math.random() * 685 + 5;
-      pos_y = Math.random() * 685 + 5;
+      pos_y = Math.random() * 485 + 5;
       obstacleList[0] = { x: pos_x, y: pos_y };
     } else if (count % 15 == 0) {
       pos_x = Math.random() * 685 + 5;
-      pos_y = Math.random() * 685 + 5;
+      pos_y = Math.random() * 485 + 5;
       obstacleList.unshift({ x: pos_x, y: pos_y });
     }
 
     eaten = false;
   }
 };
-var xhttp = new XMLHttpRequest();
-xhttp.open('GET', 'localhost:5000/api/users', true);
-xhttp.setRequestHeader('Content-Type', 'application/json');
-xhttp.send();
-var x = JSON.parse(xhttp.responseText);
-console.log(x);
 
-// var xmlhttp = new XMLHttpRequest(); // new HttpRequest instance
-// xmlhttp.open('POST', 'http://localhost:5000/api/users', true);
-// xmlhttp.setRequestHeader('Content-Type', 'application/json');
-// xmlhttp.send(JSON.stringify({ name: 'John Rambo', point: 88 }));
+maxValue = function() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.open('GET', 'http://localhost:5000/api/users', false);
+  xhttp.setRequestHeader('Content-Type', 'application/json');
+  xhttp.send();
+  topScore = JSON.parse(xhttp.responseText);
+};
+
+saveDataInDB = function() {
+  var newName = document.getElementById('winner-name').value;
+  console.log(newName);
+  var xmlhttp = new XMLHttpRequest(); // new HttpRequest instance
+  xmlhttp.open('POST', 'http://localhost:5000/api/users', true);
+  xmlhttp.setRequestHeader('Content-Type', 'application/json');
+  xmlhttp.send(JSON.stringify({ name: newName, point: score }));
+  if (newName !== '') {
+    newScorer.style.display = 'none';
+  }
+};
+
+cancel = function() {
+  newScorer.style.display = 'none';
+};
